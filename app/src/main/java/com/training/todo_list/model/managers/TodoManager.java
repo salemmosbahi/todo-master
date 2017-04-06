@@ -24,12 +24,12 @@ public class TodoManager {
     private static final Set<Todo> mTodos = new HashSet<>();
 
 
-    public List<Todo> all() {
+    public static List<Todo> all() {
         return new ArrayList<>(mTodos);
     }
 
 
-    public Todo todoFor(UUID pIdTodo) {
+    public static Todo todoFor(UUID pIdTodo) {
         for (Todo tTodo : mTodos)
             if (tTodo.id().equals(pIdTodo))
                 return tTodo;

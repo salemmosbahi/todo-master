@@ -23,18 +23,24 @@ public class TodoTypeManager {
     private static final Set<TodoType> mTodoTypes = new HashSet<>();
 
 
-    public List<TodoType> all() {
+    public static List<TodoType> all() {
         return new ArrayList<>(mTodoTypes);
     }
 
 
-    public TodoType todoTypeFor(UUID pIdTodo) {
+    public static TodoType todoTypeFor(UUID pIdTodo) {
         for (TodoType tTodoType : mTodoTypes)
             if (tTodoType.id().equals(pIdTodo))
                 return tTodoType;
         return null;
     }
 
+    public static TodoType todoTypeForName(String pNameTodo) {
+        for (TodoType tTodoType : mTodoTypes)
+            if (tTodoType.name().equals(pNameTodo))
+                return tTodoType;
+        return null;
+    }
 
     public void save(TodoType pTodoType) {
         if (null != pTodoType)

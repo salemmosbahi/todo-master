@@ -15,16 +15,15 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.training.todo_list.R;
 import com.training.todo_list.model.managers.TodoManager;
 import com.training.todo_list.model.managers.TodoTypeManager;
 import com.training.todo_list.model.models.Todo;
+import com.training.todo_list.model.models.TodoType;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,9 +38,16 @@ public class AddTodo extends Activity {
     private Switch switDone;
     private Button btnAdd;
 
+    TodoManager mDataTodo;
     TodoTypeManager mDataType;
+    private String[] tSAType = new String[3];
     private ArrayAdapter<String> tASType;
-    private int year, month, day, hour, minute;
+    private int tIYear, tIMonth, tIDay, tIHour, tIMinute;
+    private String tSId = "";
+
+    private String mSDescription, mNameTodoType;
+    private Date mTimeCreation;
+    private boolean mBIsDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,61 +59,113 @@ public class AddTodo extends Activity {
         spnType = (Spinner) findViewById(R.id.spn_type);
         switDone = (Switch) findViewById(R.id.swit_done);
         btnAdd = (Button) findViewById(R.id.btn_add);
+        btnAdd.setText("Add");
 
-        Log.d("ss",mDataType.all().size() + "");
-        for (int i = 0; i < mDataType.all().size(); i++) {
-            tASType.add(mDataType.all().get(i).name());
+        Intent tINAddTodo = getIntent();
+        Bundle tBDExtras = tINAddTodo.getExtras();
+        if (tBDExtras != null) {
+            tSId = (String) tBDExtras.get("id");
         }
 
-        /*tASType = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, tASType);
-        tASType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);*/
+        for (int i = 0; i < mDataType.all().size(); i++) {
+            tSAType[i] = mDataType.all().get(i).name();
+        }
+
+        tASType = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tSAType);
+        tASType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnType.setAdapter(tASType);
 
-        Calendar cal = Calendar.getInstance();
-        year = cal.get(Calendar.YEAR);
-        month  = cal.get(Calendar.MONTH);
-        day  = cal.get(Calendar.DAY_OF_MONTH);
-        hour = cal.get(Calendar.HOUR_OF_DAY);
-        minute = cal.get(Calendar.MINUTE);
+        Calendar tCDCalend = Calendar.getInstance();
+        tIYear = tCDCalend.get(Calendar.YEAR);
+        tIMonth  = tCDCalend.get(Calendar.MONTH);
+        tIDay  = tCDCalend.get(Calendar.DAY_OF_MONTH);
+        tIHour = tCDCalend.get(Calendar.HOUR_OF_DAY);
+        tIMinute = tCDCalend.get(Calendar.MINUTE);
 
-        txtDate.setText(new StringBuilder().append(year).append("/").append(month + 1).append("/").append(day).append(" ").append(hour).append(":").append(minute));
+        txtDate.setText(new StringBuilder().append(tIYear).append("/").append(tIMonth + 1).append("/").append(tIDay).append(" ").append(tIHour).append(":").append(tIMinute));
         txtDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new DatePickerDialog(AddTodo.this, dateSetListener, year, month, day).show();
+                new DatePickerDialog(AddTodo.this, dateSetListener, tIYear, tIMonth, tIDay).show();
             }
         });
+
+        if (!tSId.equals("")) {
+
+            btnAdd.setText("Edit");
+
+            Todo mTodo = mDataTodo.todoFor(UUID.fromString(tSId));
+            mSDescription = mTodo.description();
+            mTimeCreation = mTodo.timeCreation();
+            TodoType mTodoType = mDataType.todoTypeFor(mTodo.idTodoType());
+            mNameTodoType = mTodoType.name();
+            mBIsDone = mTodo.isDone();
+
+            etxtDescription.setText(mSDescription);
+            txtDate.setText(mTimeCreation + "");
+            spnType.setSelection(tASType.getPosition(mNameTodoType));
+            switDone.setChecked(mBIsDone);
+        }
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                addTodo();
+                if (!tSId.equals("")) {
+                    editTodo(UUID.fromString(tSId));
+                } else {
+                    addTodo();
+                }
             }
         });
     }
 
-    private void addTodo() {
-        Todo tTodo1 = new Todo("hhhhh", new Date(1420106400000L), UUID.randomUUID(), true, UUID.randomUUID());
-        TodoManager tTodoManager = new TodoManager();
-        tTodoManager.save(tTodo1);
+    private void editTodo(UUID pUid) {
 
-        Intent myIntent = new Intent(AddTodo.this, ActivityTodoList.class);
-        startActivity(myIntent);
+        UUID tUUIdType = UUID.randomUUID();
+        TodoType mTodoType = mDataType.todoTypeForName(spnType.getSelectedItem().toString());
+        tUUIdType = mTodoType.id();
+
+        if (!etxtDescription.getText().equals("")) {
+            Todo mEditTodo = new TodoManager().todoFor(pUid);
+            mEditTodo.setmSDescription(etxtDescription.getText().toString());
+            mEditTodo.setmTimeCreation(new Date(txtDate.getText().toString()));
+            mEditTodo.setmIdTodoType(tUUIdType);
+            mEditTodo.setmBIsDone(switDone.isChecked());
+
+            Intent tINListTodo = new Intent(AddTodo.this, ActivityTodoList.class);
+            startActivity(tINListTodo);
+        }
+    }
+
+    private void addTodo() {
+
+        UUID tUUIdType = UUID.randomUUID();
+        TodoType mTodoType = mDataType.todoTypeForName(spnType.getSelectedItem().toString());
+        tUUIdType = mTodoType.id();
+
+        if (!etxtDescription.getText().equals("")) {
+            Todo mTodo = new Todo(etxtDescription.getText().toString(), new Date(txtDate.getText().toString()), tUUIdType, switDone.isChecked(), UUID.randomUUID());
+            TodoManager mTodoManager = new TodoManager();
+            mTodoManager.save(mTodo);
+
+            Intent tINListTodo = new Intent(AddTodo.this, ActivityTodoList.class);
+            startActivity(tINListTodo);
+        }
     }
 
     private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-        public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {
-            year = selectedYear;
-            month = selectedMonth;
-            day = selectedDay;
-            new TimePickerDialog(AddTodo.this, timeSetListener, hour, minute, true).show();
+        public void onDateSet(DatePicker pView, int pYear, int pMonth, int pDay) {
+            tIYear = pYear;
+            tIMonth = pMonth;
+            tIDay = pDay;
+            new TimePickerDialog(AddTodo.this, timeSetListener, tIHour, tIMinute, true).show();
         }
     };
 
     private TimePickerDialog.OnTimeSetListener timeSetListener = new TimePickerDialog.OnTimeSetListener() {
-        public void onTimeSet(TimePicker view, int hourOfDay, int min) {
-            hour = hourOfDay;
-            minute = min;
-            txtDate.setText(new StringBuilder().append(year).append("/").append(month + 1).append("/").append(day).append(" ").append(hour).append(":").append(minute));
+        public void onTimeSet(TimePicker pView, int pHour, int pMinute) {
+            tIHour = pHour;
+            tIMinute = pMinute;
+            txtDate.setText(new StringBuilder().append(tIYear).append("/").append(tIMonth + 1).append("/").append(tIDay).append(" ").append(tIHour).append(":").append(tIMinute));
         }
     };
 }

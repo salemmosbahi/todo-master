@@ -12,7 +12,9 @@ import android.widget.TextView;
 
 import com.training.todo_list.R;
 import com.training.todo_list.activities.todo_list.AddTodo;
-import com.training.todo_list.model.managers.TodoManager;
+import com.training.todo_list.model.models.Todo;
+
+import java.util.List;
 
 /**
  * Created by stuart on 4/4/17.
@@ -23,24 +25,24 @@ public class TodoAdapter extends BaseAdapter {
     LayoutInflater tLIinflater;
 
     Context tCcontext;
-    TodoManager mDataTodo;
+    List<Todo> mDataTodo;
     Activity tAact;
 
-    public TodoAdapter(Context pCcontext, TodoManager pDataTodo, Activity pAact) {
+    public TodoAdapter(Context pCcontext, List<Todo> pDataTodo, Activity pAact) {
         this.tCcontext = pCcontext;
         this.mDataTodo = pDataTodo;
         this.tAact = pAact;
     }
 
     @Override
-    public int getCount() { return mDataTodo.all().size(); }
+    public int getCount() { return mDataTodo.size(); }
 
     @Override
-    public Object getItem(int pIi) { return mDataTodo.all().get(pIi); }
+    public Object getItem(int pIi) { return mDataTodo.get(pIi); }
 
     @Override
     public long getItemId(int pIi) {
-        return mDataTodo.all().indexOf(getItem(pIi));
+        return mDataTodo.indexOf(getItem(pIi));
     }
 
     @Override
@@ -59,17 +61,17 @@ public class TodoAdapter extends BaseAdapter {
             mHolder = (TodoHolder) rVview.getTag();
         }
 
-        mHolder.txtDescription.setText(mDataTodo.all().get(pIi).description());
-        mHolder.txtDone.setText(mDataTodo.all().get(pIi).isDone() + "");
-        mHolder.txtDate.setText(mDataTodo.all().get(pIi).timeCreation() + "");
+        mHolder.txtDescription.setText(mDataTodo.get(pIi).description());
+        mHolder.txtDone.setText(mDataTodo.get(pIi).isDone() + "");
+        mHolder.txtDate.setText(mDataTodo.get(pIi).timeCreation() + "");
 
         mHolder.rlRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View x) {
-                Intent myIntent = new Intent(tCcontext, AddTodo.class);
-                myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                //myIntent.putExtra("key", value); //Optional parameters
-                tCcontext.startActivity(myIntent);
+                Intent tINAddTodo = new Intent(tCcontext, AddTodo.class);
+                tINAddTodo.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                tINAddTodo.putExtra("id", mDataTodo.get(pIi).id() + "");
+                tCcontext.startActivity(tINAddTodo);
             }
         });
         return rVview;

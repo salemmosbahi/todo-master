@@ -30,6 +30,22 @@ public class Todo {
         mId = pId;
     }
 
+    public void setmSDescription(String mSDescription) {
+        this.mSDescription = mSDescription;
+    }
+
+    public void setmTimeCreation(Date mTimeCreation) {
+        this.mTimeCreation = mTimeCreation;
+    }
+
+    public void setmIdTodoType(@Nullable UUID mIdTodoType) {
+        this.mIdTodoType = mIdTodoType;
+    }
+
+    public void setmBIsDone(boolean mBIsDone) {
+        this.mBIsDone = mBIsDone;
+    }
+
     public String description() {
         return mSDescription;
     }

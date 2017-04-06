@@ -19,7 +19,7 @@ public class TodoListApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        /*TodoType tTypeEmergency = new TodoType("Emergency", "#b94a48", UUID.randomUUID());
+        TodoType tTypeEmergency = new TodoType("Emergency", "#b94a48", UUID.randomUUID());
         TodoType tTypeBeforeYesterday = new TodoType("Before yesterday", "#f89406", UUID.randomUUID());
         TodoType tTypeNormal = new TodoType("Normal", "#3a87ad", UUID.randomUUID());
 
@@ -34,6 +34,6 @@ public class TodoListApplication extends Application {
         tTodoTypeManager.save(tTypeBeforeYesterday);
         tTodoTypeManager.save(tTypeNormal);
         tTodoManager.save(tTodo1);
-        tTodoManager.save(tTodo2);*/
+        tTodoManager.save(tTodo2);
     }
 }
